@@ -5,20 +5,20 @@
 print_folder_recurse() {
     for i in "$1"/*;do
         if [ -d "$i" ];then
-                local temp=$i
-                print_folder_recurse "$temp"
+		local temp=$i
+        	print_folder_recurse "$temp"
         elif [ -f "$i" ]; then
-                filename="${1##*/}"
-                extension="${1##*.}"
-                filesize=$(stat -c%b "$1")
-                if [ "${file[$extension]}" ];
-                then
-                        (( file[$extension]++ ))
-                        (( size[$extension]+=$filesize ))
-                else
-                        file[$extension]=1
-                        size[$extension]=$filesize
-                fi
+		name="${1##*/}"
+        	size=$(stat -c%b "$1")
+		type="$(file -b --mime-type $i)"
+		if [ "${file[$type]}" ]; 
+        	then
+          		(( file[$type]++ ))
+          		(( size[$type]+=$size ))
+        	else
+          		file[$type]=1
+          		size[$type]=$size
+        	fi
         fi
     done
 }
@@ -43,3 +43,6 @@ echo "base path: $path"
 print_folder_recurse $path
 
 for i in "${!file[@]}";
+do
+  printf '%s Files \t|%d|\t%d KB\n' "$i" "${file[$i]}" "${size[$i]}"
+done
